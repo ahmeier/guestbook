@@ -4,15 +4,18 @@ type: php:7.4
 
 runtime:
     extensions:
-        - apcu
-        - mbstring
-        - sodium
         - ctype
         - iconv
-        
+        - apcu
+        - mbstring
+        - pdo_pgsql
+        - sodium
 
 build:
     flavor: none
+
+relationships:
+    database: "db:postgresql"
 
 web:
     locations:
