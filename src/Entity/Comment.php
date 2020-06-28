@@ -16,25 +16,25 @@ class Comment
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private string $author;
+    private string $author = '';
 
     /**
      * @ORM\Column(type="text")
      */
-    private string $text;
+    private string $text = '';
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private string $email;
+    private string $email = '';
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime_immutable")
      */
     private DateTimeImmutable $createdAt;
 
@@ -42,12 +42,17 @@ class Comment
      * @ORM\ManyToOne(targetEntity=Conference::class, inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
      */
-    private Conference $conference;
+    private ?Conference $conference = null;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255)
      */
-    private ?string $photoFilename;
+    private ?string $photoFilename = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new DateTimeImmutable();
+    }
 
     public function __toString()
     {
@@ -95,7 +100,7 @@ class Comment
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -107,7 +112,7 @@ class Comment
         return $this;
     }
 
-    public function getConference(): Conference
+    public function getConference(): ?Conference
     {
         return $this->conference;
     }
