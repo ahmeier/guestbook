@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ConferenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Cache\CollectionCacheEntry;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -37,11 +38,16 @@ class Conference
     /**
      * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="conference", orphanRemoval=true)
      */
-    private $comments;
+    private Collection $comments;
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->city.' '.$this->year;
     }
 
     public function getId(): ?int
