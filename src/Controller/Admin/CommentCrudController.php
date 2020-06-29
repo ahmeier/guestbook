@@ -30,7 +30,7 @@ class CommentCrudController extends AbstractCrudController
             DateField::new('createdAt'),
             TextField::new('photoFilename')
                 ->setRequired(false)
-                ->setCustomOption('empty_data', null)
+                ->setCustomOption('attributes', 'enter path')
         ];
     }
 
