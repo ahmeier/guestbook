@@ -4,7 +4,6 @@ type: php:7.4
 
 runtime:
     extensions:
-        - redis
         - ctype
         - iconv
         - apcu
@@ -37,7 +36,10 @@ hooks:
 
         curl -s https://get.symfony.com/cloud/configurator | (>&2 bash)
         
-        (>&2 symfony-build)
+        (>&2
+            php-ext-install redis 5.2.2
+            symfony-build
+        )
 
     deploy: |
         set -x -e
