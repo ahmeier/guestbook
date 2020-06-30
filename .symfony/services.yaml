@@ -4,4 +4,4 @@ db:
   size: S
 
 rediscache:
-  type: redis:5.0
+  type: redis:5.2
