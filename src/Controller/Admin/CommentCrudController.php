@@ -27,10 +27,10 @@ class CommentCrudController extends AbstractCrudController
             EmailField::new('email'),
             AssociationField::new('conference'),
             TextEditorField::new('text'),
-            DateField::new('createdAt'),
+//            DateField::new('createdAt'),
             TextField::new('photoFilename')
                 ->setRequired(false)
-                ->setCustomOption('attributes', 'enter path')
+//                ->setCustomOption('attributes', 'enter path')
         ];
     }
 

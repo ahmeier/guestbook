@@ -8,6 +8,7 @@ use DateTimeImmutable;
 
 /**
  * @ORM\Entity(repositoryClass=CommentRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  */
 class Comment
 {
@@ -36,7 +37,7 @@ class Comment
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private DateTimeImmutable $createdAt;
+    private ?DateTimeImmutable $createdAt = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=Conference::class, inversedBy="comments")
@@ -49,10 +50,10 @@ class Comment
      */
     private ?string $photoFilename = null;
 
-    public function __construct()
-    {
-        $this->createdAt = new DateTimeImmutable();
-    }
+//    public function __construct()
+//    {
+//        $this->createdAt = new DateTimeImmutable();
+//    }
 
     public function __toString()
     {
@@ -105,11 +106,19 @@ class Comment
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTimeImmutable $createdAt): self
-    {
-        $this->createdAt = $createdAt;
+//    public function setCreatedAt(DateTimeImmutable $createdAt): self
+//    {
+//        $this->createdAt = $createdAt;
+//
+//        return $this;
+//    }
 
-        return $this;
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function getConference(): ?Conference

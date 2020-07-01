@@ -53,16 +53,20 @@ class ConferenceController extends AbstractController
      *
      * @param Request $request
      * @param Conference $conference
-     * @param CommentRepository $repository
+     * @param CommentRepository $commentRepository
      * @return Response
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    public function show(Request $request, Conference $conference, CommentRepository $repository): Response
+    public function show(
+        Request $request,
+        Conference $conference,
+        CommentRepository $commentRepository
+    ): Response
     {
         $offset = max(0, $request->query->getInt('offset', 0));
-        $paginator = $repository->getCommentPaginator($conference, $offset);
+        $paginator = $commentRepository->getCommentPaginator($conference, $offset);
 
         return new Response($this->twig->render('conference/show.html.twig', [
             'conference' => $conference,

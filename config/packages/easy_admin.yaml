@@ -11,4 +11,7 @@ easy_admin:
                 title: "List of Conferences"
         Comment:
             class: App\Entity\Comment
+            form:
+                fields:
+                    - author
 #        - App\Entity\User
