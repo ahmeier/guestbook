@@ -61,7 +61,7 @@ class Conference
         return $this->id;
     }
 
-    public function computeSlug(SluggerInterface $slugger): string
+    public function computeSlug(SluggerInterface $slugger): void
     {
         if(!$this->slug || '-' === $this->slug) {
             $this->slug = (string) $slugger->slug((string) $this)->lower();
