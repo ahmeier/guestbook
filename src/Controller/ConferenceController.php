@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Conference;
 use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,7 +51,7 @@ class ConferenceController extends AbstractController
     }
 
     /**
-     * @Route(name="conference_show", path="/conference/show/{id}")
+     * @Route(name="conference_show", path="/conference/show/{slug}")
      *
      * @param Request $request
      * @param Conference $conference

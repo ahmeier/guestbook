@@ -46,7 +46,7 @@ class Comment
     private ?Conference $conference = null;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $photoFilename = null;
 
@@ -105,13 +105,6 @@ class Comment
     {
         return $this->createdAt;
     }
-
-//    public function setCreatedAt(DateTimeImmutable $createdAt): self
-//    {
-//        $this->createdAt = $createdAt;
-//
-//        return $this;
-//    }
 
     /**
      * @ORM\PrePersist
