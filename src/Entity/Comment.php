@@ -55,10 +55,10 @@ class Comment
      */
     private ?string $photoFilename = null;
 
-//    public function __construct()
-//    {
-//        $this->createdAt = new DateTimeImmutable();
-//    }
+    /**
+     * @ORM\Column(type="string", length=255, nullable=false, options={"default": "submitted"})
+     */
+    private string $state = 'submitted';
 
     public function __toString()
     {
@@ -139,6 +139,25 @@ class Comment
     public function setPhotoFilename(string $photoFilename): self
     {
         $this->photoFilename = $photoFilename;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getState(): string
+    {
+        return $this->state;
+    }
+
+    /**
+     * @param string $state
+     * @return $this
+     */
+    public function setState(string $state): self
+    {
+        $this->state = $state;
 
         return $this;
     }

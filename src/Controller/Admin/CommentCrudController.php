@@ -29,7 +29,8 @@ class CommentCrudController extends AbstractCrudController
             TextEditorField::new('text', 'Comment Text:'),
             ImageField::new('photoFilename', 'Photo:')
                 ->setBasePath('/uploads/photos')
-                ->setRequired(false)
+                ->setRequired(false),
+            TextField::new('state', 'Comment Status')
         ];
     }
 }
