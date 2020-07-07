@@ -70,6 +70,6 @@ class SpamChecker
             );
         }
 
-        return true === $content ? 0 : 1;
+        return 'true' === $content ? 1 : 0;
     }
 }

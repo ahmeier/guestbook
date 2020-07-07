@@ -5,43 +5,45 @@ namespace App\Controller;
 use App\Entity\Comment;
 use App\Entity\Conference;
 use App\Form\CommentFormType;
+use App\Message\Comment\CommentMessage;
 use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
-use App\Utils\SpamChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Exception;
-use RuntimeException;
 
 class ConferenceController extends AbstractController
 {
-    /**
-     * @var Environment
-     */
+    /** @var Environment */
     private Environment $twig;
-    /**
-     * @var EntityManagerInterface
-     */
+
+    /** @var EntityManagerInterface */
     private EntityManagerInterface $entityManager;
+
+    /** @var MessageBusInterface */
+    private MessageBusInterface $bus;
 
     /**
      * ConferenceController constructor.
      * @param Environment $twig
      * @param EntityManagerInterface $entityManager
+     * @param MessageBusInterface $bus
      */
-    public function __construct(Environment $twig, EntityManagerInterface $entityManager)
+    public function __construct(Environment $twig, EntityManagerInterface $entityManager, MessageBusInterface $bus)
     {
 
         $this->twig = $twig;
         $this->entityManager = $entityManager;
+        $this->bus = $bus;
     }
     /**
      * @Route("/", name="homepage")
@@ -67,7 +69,6 @@ class ConferenceController extends AbstractController
      * @param Request $request
      * @param Conference $conference
      * @param CommentRepository $commentRepository
-     * @param SpamChecker $spamChecker
      * @param string $photoDir
      * @return Response
      * @throws LoaderError
@@ -79,7 +80,6 @@ class ConferenceController extends AbstractController
         Request $request,
         Conference $conference,
         CommentRepository $commentRepository,
-        SpamChecker $spamChecker,
         string $photoDir
     ): Response
     {
@@ -100,6 +100,7 @@ class ConferenceController extends AbstractController
             }
 
             $this->entityManager->persist($comment);
+            $this->entityManager->flush();
 
             $context = [
                 'user_ip' => $request->getClientIp(),
@@ -108,11 +109,7 @@ class ConferenceController extends AbstractController
                 'permalink' => $request->getUri()
             ];
 
-            if ($spamChecker->getSpamScore($comment, $context) > 0) {
-                throw new RuntimeException('this is likely spam, go away!');
-            }
-
-            $this->entityManager->flush();
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
 
             return $this->redirectToRoute('conference_show', ['slug' => $conference->getSlug()]);
         }
