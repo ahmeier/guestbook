@@ -15,7 +15,7 @@ framework:
             failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
         failure_transport: failed
-        
+
         routing:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
