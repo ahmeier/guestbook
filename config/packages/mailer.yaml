@@ -1,0 +1,6 @@
+framework:
+    mailer:
+#        dsn: '%env(MAILER_DSN)%'
+        dsn: 'smtp://127.0.0.1:2025'
+        envelope:
+            sender: '%env(string:default:default_admin_email:ADMIN_EMAIL)%'

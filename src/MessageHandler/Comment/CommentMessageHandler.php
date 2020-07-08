@@ -7,13 +7,16 @@ use App\Repository\CommentRepository;
 use App\Utils\SpamChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Twig\Mime\NotificationEmail;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface as MailerTransportExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface as HttpTransportExceptionInterface;
 
 class CommentMessageHandler implements MessageHandlerInterface
 {
@@ -26,6 +29,9 @@ class CommentMessageHandler implements MessageHandlerInterface
     /** @var LoggerInterface */
     private LoggerInterface $logger;
 
+    /** @var MailerInterface */
+    private MailerInterface $mailer;
+
     /** @var MessageBusInterface */
     private MessageBusInterface $bus;
 
@@ -35,22 +41,29 @@ class CommentMessageHandler implements MessageHandlerInterface
     /** @var WorkflowInterface */
     private WorkflowInterface $workflow;
 
+    /** @var string */
+    private string $adminEmail;
+
     /**
      * CommentMessageHandler constructor.
      * @param CommentRepository $repository
      * @param EntityManagerInterface $entityManager
      * @param LoggerInterface $logger
+     * @param MailerInterface $mailer
      * @param MessageBusInterface $bus
      * @param SpamChecker $spamChecker
      * @param WorkflowInterface $commentStateMachine
+     * @param string $adminEmail
      */
     public function __construct(
         CommentRepository $repository,
         EntityManagerInterface $entityManager,
         LoggerInterface $logger,
+        MailerInterface $mailer,
         MessageBusInterface $bus,
         SpamChecker $spamChecker,
-        WorkflowInterface $commentStateMachine
+        WorkflowInterface $commentStateMachine,
+        string $adminEmail
     )
     {
 
@@ -60,6 +73,8 @@ class CommentMessageHandler implements MessageHandlerInterface
         $this->logger = $logger;
         $this->bus = $bus;
         $this->workflow = $commentStateMachine;
+        $this->mailer = $mailer;
+        $this->adminEmail = $adminEmail;
     }
 
     /**
@@ -67,7 +82,8 @@ class CommentMessageHandler implements MessageHandlerInterface
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
+     * @throws HttpTransportExceptionInterface
+     * @throws MailerTransportExceptionInterface
      */
     public function __invoke(CommentMessage $message): void
     {
@@ -90,9 +106,13 @@ class CommentMessageHandler implements MessageHandlerInterface
 
         } elseif ($this->workflow->can($comment, 'publish') ||
             $this->workflow->can($comment, 'publish_ham')) {
-            $this->workflow->apply(
-                $comment,
-                $this->workflow->can($comment, 'publish') ? 'publish' : 'publish_ham');
+            $this->mailer->send((new NotificationEmail())
+                ->subject('')
+                ->htmlTemplate('email/comment_notification.html.twig')
+                ->from($this->adminEmail)
+                ->to($this->adminEmail)
+                ->context(['comment' => $comment])
+                );
         } elseif ($this->logger) {
             $this->logger->debug('Dropping comment message', [
                 'comment' => $comment->getId(),
