@@ -5,12 +5,14 @@ namespace App\Controller;
 use App\Entity\Comment;
 use App\Message\Comment\CommentMessage;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\HttpCache\HttpCache;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Workflow\Registry;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -22,7 +24,7 @@ use Twig\Error\SyntaxError;
  * Class AdminController
  * @package App\Controller
  */
-class AdminController
+class AdminController extends AbstractController
 {
     /** @var Environment */
     private Environment $twig;
@@ -75,7 +77,11 @@ class AdminController
         $this->entityManager->flush();
 
         if($accepted) {
-            $this->bus->dispatch(new CommentMessage($comment->getId()));
+            $reviewUrl = $this->generateUrl(
+                'review_comment',
+                ['id' => $comment->getId()],
+                UrlGeneratorInterface::ABSOLUTE_URL);
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $reviewUrl));
         }
 
         $html = $this->twig->render('admin/review.html.twig', [
@@ -94,7 +100,7 @@ class AdminController
      * @param string $uri
      * @return Response
      */
-    public function purgeHttpCache(KernelInterface $kernel, Request $request, string $uri)
+    public function purgeHttpCache(KernelInterface $kernel, Request $request, string $uri): Response
     {
         if('prod' === $kernel->getEnvironment()) {
             return new Response('KO', 400);

@@ -8,6 +8,14 @@
     </h2>
 
     <div class="row">
+        {% for message in app.flashes('notification') %}
+            <div class="alert alert-info alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times</span>
+                </button>
+            </div>
+        {% endfor %}
         <div class="col-12 col-lg-8">
             {% if comments|length > 0 %}
                 {% for comment in comments %}
