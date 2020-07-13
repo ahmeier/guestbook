@@ -1,0 +1,15 @@
+{% extends '@email/default/notification/body.html.twig' %}
+
+{% block content %}
+    <h4>Congratulations!</h4>
+    Your comment was reviewed, approved, and posted. Here is the info:
+    <blockquote>
+        Author: {{ comment.author }}<br/>
+        email: {{ comment.email }}<br/>
+        State: {{ comment.state }}<br/>
+    </blockquote>
+    <hr/>
+    <p>
+        {{ comment.text }}
+    </p>
+{% endblock %}

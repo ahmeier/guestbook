@@ -3,6 +3,7 @@
 namespace App\MessageHandler\Comment;
 
 use App\Message\Comment\CommentMessage;
+use App\Notification\CommentApprovedNotification;
 use App\Notification\CommentReviewNotification;
 use App\Repository\CommentRepository;
 use App\Utils\ImageOptimizer;
@@ -11,12 +12,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Notifier\NotifierInterface;
+use Symfony\Component\Notifier\Recipient\Recipient;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface as MailerTransportExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface as HttpTransportExceptionInterface;
 
 class CommentMessageHandler implements MessageHandlerInterface
@@ -46,9 +47,6 @@ class CommentMessageHandler implements MessageHandlerInterface
     private WorkflowInterface $workflow;
 
     /** @var string */
-    private string $adminEmail;
-
-    /** @var string */
     private string $photoDir;
 
     /**
@@ -61,7 +59,6 @@ class CommentMessageHandler implements MessageHandlerInterface
      * @param MessageBusInterface $bus
      * @param SpamChecker $spamChecker
      * @param WorkflowInterface $commentStateMachine
-     * @param string $adminEmail
      * @param string $photoDir
      */
     public function __construct(
@@ -120,6 +117,10 @@ class CommentMessageHandler implements MessageHandlerInterface
 
             $this->notifier->send($notification, ...$this->notifier->getAdminRecipients());
         } elseif ($this->workflow->can($comment, 'optimize')) {
+            // notify the comment author
+            $notification = new CommentApprovedNotification($comment);
+            $recipient = new Recipient($comment->getEmail());
+            $this->notifier->send($notification, $recipient);
             if($comment->getPhotoFilename()) {
                 $this->optimizer->resize($this->photoDir . '/' . $comment->getPhotoFilename());
             }
