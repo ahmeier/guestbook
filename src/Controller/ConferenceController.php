@@ -48,8 +48,17 @@ class ConferenceController extends AbstractController
         $this->entityManager = $entityManager;
         $this->bus = $bus;
     }
+
     /**
-     * @Route("/", name="homepage")
+     * @Route(path="/", name="index_no_locale")
+     * @return Response
+     */
+    public function indexNoLocale()
+    {
+        return $this->redirectToRoute('homepage', ['_locale' => 'en']);
+    }
+    /**
+     * @Route("/{_locale<%app.supported.locales%>}/", name="homepage")
      *
      * @param ConferenceRepository $repository
      * @return Response
@@ -71,7 +80,7 @@ class ConferenceController extends AbstractController
     }
 
     /**
-     * @Route(path="/conference_header", name="conference_header")
+     * @Route(path="/{_locale<%app.supported.locales%>}/conference_header", name="conference_header")
      *
      * @param ConferenceRepository $repository
      * @return Response
@@ -93,7 +102,7 @@ class ConferenceController extends AbstractController
     }
 
     /**
-     * @Route(name="conference_show", path="/conference/show/{slug}")
+     * @Route(name="conference_show", path="/{_locale<%app.supported.locales%>}/conference/show/{slug}")
      *
      * @param Request $request
      * @param Conference $conference
